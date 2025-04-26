@@ -41,9 +41,10 @@ func renderHomePage(w http.ResponseWriter, data HomePageData) {
 }
 
 type ShortsPageData struct {
-	Title string
-	Url   string
-	Short string
+	Title    string
+	Url      string
+	Short    string
+	ShortUrl string
 }
 
 func renderShortsPage(w http.ResponseWriter, data ShortsPageData) {
@@ -99,11 +100,28 @@ func (conf *Config) handleCreateShort(w http.ResponseWriter, r *http.Request) {
 	}
 
 	data := ShortsPageData{
-		Title: title,
-		Url:   UrlRow.Url,
-		Short: baseUrl + UrlRow.Short,
+		Title:    title,
+		Url:      UrlRow.Url,
+		Short:    UrlRow.Short,
+		ShortUrl: baseUrl + UrlRow.Short,
 	}
 	renderShortsPage(w, data)
+}
+
+func (conf *Config) handleGetShort(w http.ResponseWriter, r *http.Request) {
+	short := r.PathValue("short")
+	if short == "" {
+		log.Println("error occurred: short is not set")
+		return
+	}
+
+	URLRow, err := conf.Queries.GetShort(r.Context(), short)
+	if err != nil {
+		log.Printf("error occurred: %v\n", err)
+		return
+	}
+
+	http.Redirect(w, r, URLRow.Url, http.StatusFound)
 }
 
 type Config struct {
@@ -130,6 +148,7 @@ func main() {
 
 	mux.HandleFunc("GET /home", conf.handleHome)
 	mux.HandleFunc("POST /shorts", conf.handleCreateShort)
+	mux.HandleFunc("GET /{short}", conf.handleGetShort)
 
 	srv := http.Server{
 		Addr:    ":8080",

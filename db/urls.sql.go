@@ -31,3 +31,21 @@ func (q *Queries) CreateURL(ctx context.Context, arg CreateURLParams) (Url, erro
 	)
 	return i, err
 }
+
+const getShort = `-- name: GetShort :one
+select id, url, short, created_at
+from urls
+where short = $1
+`
+
+func (q *Queries) GetShort(ctx context.Context, short string) (Url, error) {
+	row := q.db.QueryRow(ctx, getShort, short)
+	var i Url
+	err := row.Scan(
+		&i.ID,
+		&i.Url,
+		&i.Short,
+		&i.CreatedAt,
+	)
+	return i, err
+}
