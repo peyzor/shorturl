@@ -14,5 +14,10 @@
     <input type="url" id="url" name="url" required>
     <button type="submit">Submit</button>
 </form>
+<ul>
+    {{range .Errors}}
+    <li>{{.}}</li>
+    {{end}}
+</ul>
 </body>
 </html>
