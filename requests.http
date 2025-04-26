@@ -1,4 +1,0 @@
-@baseUrl = localhost:8080
-
-### Root
-{{baseUrl}}/
